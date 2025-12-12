@@ -295,3 +295,30 @@ body {
 .card-income { border-color: #2E7D32; } 
 .card-expense { border-color: #D32F2F; } 
 .card-balance { border-color: #1976D2; }
+
+/* ===========================================================
+   ANIMACIÓN DE CARGA (SPINNER)
+   =========================================================== */
+.loader-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Estado del botón cuando está cargando */
+.btn-auth:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}

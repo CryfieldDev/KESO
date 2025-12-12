@@ -48,27 +48,63 @@
 
     <script src="/global.js"></script>
     <script>
-        // Lógica de Login (Igual que antes, solo cambiamos clases HTML)
+        // Lógica de Login con Animación de Carga
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
+            
+            // 1. Obtener referencias
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const btnSubmit = document.querySelector('.btn-auth');
+            
+            const u = usernameInput.value;
+            const p = passwordInput.value;
+
+            // 2. Guardar estado original del botón
+            const originalBtnContent = btnSubmit.innerHTML;
+
+            // 3. ACTIVAR MODO CARGA (Spinner)
+            btnSubmit.disabled = true; 
+            btnSubmit.innerHTML = '<div class="loader-spinner"></div> Iniciando...';
 
             try {
+                // Hacemos la petición
                 const res = await fetch(`${window.API_URL}/login`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ username: u, password: p })
                 });
+                
                 const data = await res.json();
 
                 if (res.ok) {
+                    // LOGIN EXITOSO
                     localStorage.setItem('keso_user', data.user.username);
                     showToast(`¡Hola de nuevo, ${data.user.username}!`, 'success');
-                    setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 1000);
+                    
+                    // Esperamos 1s mostrando el spinner antes de cambiar de página para que se vea fluido
+                    setTimeout(() => { 
+                        window.location.href = '/dashboard/dashboard.html'; 
+                    }, 1000);
+
                 } else {
-                    showToast(data.message || 'Error de credenciales', 'error');
+                    // ERROR DE CREDENCIALES
+                    throw new Error(data.message || 'Error de credenciales');
                 }
-            } catch (err) { showToast('Sin conexión con el servidor', 'error'); }
+
+            } catch (err) { 
+                // ERROR DE CONEXIÓN O CREDENCIALES
+                console.error(err);
+                showToast(err.message || 'Sin conexión con el servidor', 'error');
+                
+                // 4. RESTAURAR BOTÓN (Importante para que pueda intentar de nuevo)
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnContent;
+                
+                // Limpiar password y hacer focus
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
         });
     </script>
 </body>
