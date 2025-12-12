@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Facturación</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 25px;
+            height: calc(100vh - 100px);
+        }
+        
+        .invoice-paper {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-radius: 8px;
+            height: 100%;
+        }
+
+        .invoice-items {
+            flex-grow: 1;
+            overflow-y: auto;
+            border-top: 2px dashed #eee;
+            border-bottom: 2px dashed #eee;
+            margin: 15px 0;
+            padding: 10px 5px;
+        }
+
+        .invoice-total {
+            background: var(--color-principal-azul);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.6em;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95em;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+        }
+
+        .cart-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+
+        .product-preview-card {
+            background: #f4f6f8; 
+            padding: 20px; 
+            border-radius: 12px; 
+            display: none;
+            border: 1px solid #e0e0e0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .preview-content {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        #info-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .logo-round {
+            border-radius: 50%;
+            object-fit: cover;
+            aspect-ratio: 1 / 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo);">PUNTO DE VENTA</h3>
+            </div>
+            <nav class="sidebar-menu">
+                
+                <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="#" class="menu-item active"><i class="fas fa-cash-register"></i> Facturar</a>
+                <a href="/sales/sales.html" class="menu-item">
+                <i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <div class="pos-grid">
+                
+                <div class="panel" style="display: flex; flex-direction: column; gap: 20px; height: 100%;">
+                    <h2 style="color: var(--color-principal-azul); margin:0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                        <i class="fas fa-search"></i> Buscar Producto
+                    </h2>
+                    
+                    <div class="input-group search-container">
+                        <label>Escribe para buscar:</label>
+                        <input type="text" id="product-search" placeholder="Nombre o categoría..." autocomplete="off" style="font-size: 1.1em; padding: 15px;">
+                        <div id="search-dropdown" class="search-results-dropdown"></div>
+                    </div>
+
+                    <div id="selected-product-info" class="product-preview-card">
+                        <div class="preview-content">
+                            <img id="info-img" src="" alt="Producto">
+                            <div style="flex: 1;">
+                                <h3 id="info-nombre" style="margin:0 0 5px 0; font-size: 1.4em; color: var(--color-principal-azul);">Nombre</h3>
+                                <p style="margin:0; color: #666; font-size: 0.9em; margin-bottom: 10px;">Categoría: <span id="info-cat">-</span></p>
+                                
+                                <div style="display: flex; gap: 15px; font-size: 1.1em;">
+                                    <div style="background: white; padding: 5px 10px; border-radius: 6px; border: 1px solid #ddd;">
+                                        Stock: <b id="info-stock">0</b> <span id="info-unidad-txt"></span>
+                                    </div>
+                                    <div style="background: #E8F5E9; color: #2E7D32; padding: 5px 10px; border-radius: 6px; border: 1px solid #C8E6C9;">
+                                        Precio: <b id="info-precio">$0.00</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: auto;">
+                        <div class="input-group">
+                            <label>Cantidad a Vender:</label>
+                            <input type="number" id="sale-qty" min="0" step="0.001" placeholder="0.000" style="font-size: 1.2em; font-weight: bold;">
+                        </div>
+                        <div class="input-group" style="display: flex; align-items: flex-end;">
+                            <button id="btn-add-cart" class="btn btn-principal" style="margin:0; height: 50px;">
+                                <i class="fas fa-cart-plus"></i> AGREGAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-paper">
+                    <div style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+                        <img src="/img/logo1.png" class="logo-round" style="width: 100px; display: block; margin: 0 auto 10px auto;">
+                        <h3 style="margin:0; color:#333;">ORDEN DE VENTA</h3>
+                        <div style="font-size: 0.85em; color: #777; margin-top: 5px;">
+                            <i class="fas fa-calendar-alt"></i> <span id="invoice-date">--/--/--</span> &nbsp;|&nbsp; 
+                            <i class="fas fa-user"></i> <span id="invoice-seller">...</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="client-name" placeholder="Nombre del Cliente (Opcional)" style="padding: 10px; background: #f9f9f9;">
+                    </div>
+
+                    <div class="invoice-items" id="cart-items">
+                        <div style="text-align: center; color: #bbb; margin-top: 40px; font-style: italic;">
+                            <i class="fas fa-shopping-basket" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>
+                            Carrito Vacío
+                        </div>
+                    </div>
+
+                    <div style="margin-top: auto;">
+                        <div style="display: flex; justify-content: space-between; font-size: 1.1em; margin-bottom: 10px; color: #555;">
+                            <span>Subtotal:</span>
+                            <span id="cart-subtotal">$0.00</span>
+                        </div>
+                        <div class="invoice-total">
+                            <span>TOTAL: </span>
+                            <span id="cart-total">$0.00</span>
+                        </div>
+                        <button id="btn-checkout" class="btn btn-principal" style="background: #2E7D32; margin-top: 15px; width: 100%;">
+                            <i class="fas fa-check"></i> PROCESAR VENTA
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/global.js"></script>
+    <script src="billing.js"></script>
+</body>
+</html>

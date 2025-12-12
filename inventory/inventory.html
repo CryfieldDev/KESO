@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Inventario </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">PANEL CONTROL</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
+                <a href="#" class="menu-item active"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="/billing/billing.html" class="menu-item"><i class="fas fa-cash-register"></i> Facturar</a>
+                <a href="/sales/sales.html" class="menu-item"><i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <div class="header-tools">
+                <h1 style="color: var(--color-principal-azul);">Gestión de Productos</h1>
+            </div>
+
+            <div class="panel">
+                <h3 id="form-title" style="color: var(--color-principal-azul); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                    <i class="fas fa-plus-circle"></i> Nuevo Ingreso
+                </h3>
+                
+                <form id="inventory-form">
+                    <input type="hidden" id="prod-id">
+
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Nombre del Producto:</label>
+                            <input type="text" id="prod-nombre" required placeholder="Ej: Queso Gouda">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Categoría:</label>
+                            <select id="prod-categoria" required>
+                                <option value="" disabled selected>Seleccione...</option>
+                                <option value="Quesos">🧀 Quesos</option>
+                                <option value="Charcutería">🍖 Charcutería</option>
+                                <option value="Lácteos">🥛 Lácteos</option>
+                                <option value="Víveres">🥫 Víveres</option>
+                                <option value="Otros">📦 Otros</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Unidad:</label>
+                            <select id="prod-unidad" required>
+                                <option value="kg">⚖️ Kilogramos</option>
+                                <option value="und">📦 Unidades</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Cantidad:</label>
+                            <input type="number" id="prod-cantidad" required min="0" step="0.001">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Costo ($):</label>
+                            <input type="number" id="prod-precio-compra" required step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Venta ($):</label>
+                            <input type="number" id="prod-precio-venta" required step="0.01" min="0">
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>Foto del Producto:</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="file" id="prod-imagen" class="file-upload" accept="image/*" style="flex: 1;">
+                                <button type="button" class="btn btn-acento-secundario" onclick="openImageGallery()" style="width: auto; margin:0; border: 1px solid #ddd;">
+                                    <i class="fas fa-images"></i> Galería
+                                </button>
+                            </div>
+                            <div id="preview-container" style="margin-top: 10px; display: none; align-items: center; gap: 10px;">
+                                <span style="font-size: 0.9em; color: #2E7D32;"><i class="fas fa-check-circle"></i> Imagen seleccionada:</span>
+                                <img id="img-preview-mini" src="" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc;">
+                                <button type="button" onclick="clearImageSelection()" style="background: none; border: none; color: #d32f2f; cursor: pointer;"><i class="fas fa-times"></i></button>
+                            </div>
+                            <input type="hidden" id="imagen-existing">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; display: flex; gap: 15px;">
+                        <button type="submit" class="btn btn-principal" id="btn-guardar" style="width: auto;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                        <button type="button" id="btn-cancelar" class="btn btn-logout" style="display: none; width: auto;">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel">
+                <table class="full-table">
+                    <thead>
+                        <tr>
+                            <th width="60">Foto</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Existencia</th>
+                            <th>Costo</th>
+                            <th>P. Venta</th>
+                            <th>Margen</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-list"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="gallery-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header"><i class="fas fa-images"></i> Galería de Productos</div>
+            <div class="modal-body" style="padding: 0;">
+                <div id="gallery-grid" class="gallery-grid"></div>
+                <div id="gallery-empty" style="text-align: center; padding: 20px; color: #888; display: none;">No hay imágenes guardadas aún.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-cancel" onclick="closeGallery()">Cancelar</button>
+                <button class="btn-modal btn-confirm" onclick="confirmGallerySelection()">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/global.js"></script>
+    <script src="inventory.js"></script>
+</body>
+</html>

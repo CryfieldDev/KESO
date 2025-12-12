@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Ventas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* ESTILOS NORMALES DE LA APP */
+        .sales-toolbar {
+            background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px;
+        }
+        .search-box { position: relative; flex: 1; }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
+        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
+        .week-navigator { display: flex; align-items: center; gap: 15px; background: #f4f6f8; padding: 5px 10px; border-radius: 8px; }
+        .nav-btn { background: white; border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; color: var(--color-principal-azul); display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .nav-btn:hover { background: var(--color-principal-azul); color: white; }
+        #current-week-display { font-weight: bold; color: #333; min-width: 180px; text-align: center; }
+        .order-badge { background: #e3f2fd; color: var(--color-principal-azul); padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
+        .products-detail { list-style: none; padding: 0; margin: 0; font-size: 0.85em; color: #555; }
+        .products-detail li { border-bottom: 1px dashed #eee; padding-bottom: 3px; margin-bottom: 3px; }
+
+        /* === ZONA DE IMPRESIÓN === */
+        #ticket-print-area { display: none; } /* Oculto normalmente */
+
+        @media print {
+            /* 1. Ocultar TODO lo que no sea el ticket */
+            body * {
+                visibility: hidden;
+            }
+            
+            /* 2. CONFIGURACIÓN CRÍTICA DEL TICKET */
+            #ticket-print-area {
+                display: block !important; /* <--- ESTA LÍNEA ARREGLA LA HOJA EN BLANCO */
+                visibility: visible !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+                z-index: 9999;
+            }
+
+            /* 3. Hacer visible el contenido interno del ticket */
+            #ticket-print-area * {
+                visibility: visible !important;
+            }
+            
+            /* 4. Limpiar márgenes de página */
+            @page { margin: 0; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container" id="app-content">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">KESO SYSTEM</h3>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="/billing/billing.html" class="menu-item"><i class="fas fa-cash-register"></i> Facturar</a>
+                <a href="#" class="menu-item active"><i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-tools">
+                <h1 style="color: var(--color-principal-azul);">Historial de Ventas</h1>
+            </div>
+
+            <div class="sales-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="sales-search" placeholder="Buscar por Cliente o #Orden...">
+                </div>
+                <div class="week-navigator">
+                    <button class="nav-btn" onclick="changeWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <span id="current-week-display">Semana Actual</span>
+                    <button class="nav-btn" onclick="changeWeek(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <div id="sales-container">
+                <div style="text-align: center; padding: 40px; color: #888;">Cargando...</div>
+            </div>
+        </main>
+    </div>
+
+    <div id="ticket-print-area"></div>
+
+    <script src="/global.js"></script>
+    <script src="sales.js"></script>
+</body>
+</html>

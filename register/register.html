@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Registro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        
+        <div class="auth-brand">
+            <img src="/img/logo1.png" class="brand-logo-big logo-round" alt="Logo">
+            <h1>ÚNETE A KESO</h1>
+            <p>Empieza a controlar tu inventario hoy mismo.<br>Rápido, fácil y seguro.</p>
+        </div>
+
+        <div class="auth-form-wrapper">
+            <div class="auth-form-content">
+                <h2 class="auth-title">Crear Cuenta</h2>
+                <p class="auth-subtitle">Configura tu nuevo usuario administrador.</p>
+
+                <form id="register-form">
+                    <div>
+                        <label class="input-label">Nuevo Usuario</label>
+                        <input type="text" id="reg-username" class="modern-input" placeholder="Elige un nombre de usuario" required>
+                    </div>
+                    
+                    <div>
+                        <label class="input-label">Contraseña</label>
+                        <input type="password" id="reg-password" class="modern-input" placeholder="Crea una contraseña fuerte" required>
+                    </div>
+
+                    <button type="submit" class="btn-auth" style="background-color: var(--color-acento-amarillo); color: var(--color-principal-azul);">
+                        Registrarme <i class="fas fa-check-circle"></i>
+                    </button>
+                </form>
+
+                <div style="margin-top: 30px; text-align: center; color: #666;">
+                    ¿Ya tienes cuenta? 
+                    <a href="/index.html" class="auth-link">Inicia Sesión</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/global.js"></script>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('reg-username').value;
+            const p = document.getElementById('reg-password').value;
+
+            try {
+                const res = await fetch(`${window.API_URL}/register`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast('¡Cuenta creada con éxito!', 'success');
+                    setTimeout(() => { window.location.href = '/index.html'; }, 2000);
+                } else {
+                    showToast(data.message || 'Error al registrar', 'error');
+                }
+            } catch (err) { showToast('Error de conexión', 'error'); }
+        });
+    </script>
+</body>
+</html>

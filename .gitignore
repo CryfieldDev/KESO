@@ -1,0 +1,17 @@
+# Archivos del sistema
+node_modules/
+dist/
+release/
+build/
+
+# Archivos de entorno (SECRETOS)
+.env
+
+# Logs y errores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db

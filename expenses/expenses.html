@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Finanzas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* ESTILOS ESPECÍFICOS DE FINANZAS */
+        .finance-toolbar {
+            background: white; padding: 15px; border-radius: 12px; margin-bottom: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .period-selector button {
+            background: #f4f6f8; border: 1px solid #ddd; padding: 8px 15px; cursor: pointer;
+            font-weight: 600; color: #555; transition: 0.2s;
+        }
+        .period-selector button:first-child { border-radius: 6px 0 0 6px; }
+        .period-selector button:last-child { border-radius: 0 6px 6px 0; }
+        .period-selector button.active { background: var(--color-principal-azul); color: white; border-color: var(--color-principal-azul); }
+
+        .date-navigator { display: flex; align-items: center; gap: 15px; font-size: 1.1em; font-weight: bold; color: #333; }
+        .nav-arrow { cursor: pointer; padding: 5px 10px; background: #eee; border-radius: 50%; transition: 0.2s; }
+        .nav-arrow:hover { background: #ddd; }
+
+        /* Tarjetas de Resumen */
+        .balance-hero {
+            text-align: center; padding: 30px; border-radius: 12px; color: white; margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: 0.3s;
+        }
+        .balance-positive { background: linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%); } /* Verde */
+        .balance-negative { background: linear-gradient(135deg, #C62828 0%, #EF5350 100%); } /* Rojo */
+        .balance-neutral { background: linear-gradient(135deg, #78909C 0%, #B0BEC5 100%); } /* Gris */
+
+        .balance-amount { font-size: 3.5em; font-weight: 800; margin: 10px 0; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .mini-stat { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-label { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 1.4em; font-weight: bold; color: #333; margin-top: 5px; }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">FINANZAS</h3>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="/billing/billing.html" class="menu-item"><i class="fas fa-cash-register"></i> Facturar</a>
+                <a href="/sales/sales.html" class="menu-item"><i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="#" class="menu-item active"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-tools">
+                <h1 style="color: var(--color-principal-azul);">Panel Financiero</h1>
+            </div>
+
+            <div class="finance-toolbar">
+                <div class="period-selector">
+                    <button id="btn-week" class="active" onclick="setPeriod('week')">Semana</button>
+                    <button id="btn-month" onclick="setPeriod('month')">Mes</button>
+                    <button id="btn-year" onclick="setPeriod('year')">Año</button>
+                </div>
+
+                <div class="date-navigator">
+                    <i class="fas fa-chevron-left nav-arrow" onclick="changeDate(-1)"></i>
+                    <span id="period-display">Semana Actual</span>
+                    <i class="fas fa-chevron-right nav-arrow" onclick="changeDate(1)"></i>
+                </div>
+            </div>
+
+            <div id="hero-card" class="balance-hero balance-neutral">
+                <div style="font-size: 1.1em; opacity: 0.9;">BALANCE DEL PERIODO</div>
+                <div id="main-balance" class="balance-amount">$0.00</div>
+                <div id="balance-status">Sin movimientos</div>
+            </div>
+
+            <div class="breakdown-grid">
+                <div class="mini-stat" style="border-color: #2E7D32;">
+                    <div class="stat-label">Ingresos (Ventas)</div>
+                    <div id="stat-income" class="stat-value" style="color: #2E7D32;">$0.00</div>
+                </div>
+                <div class="mini-stat" style="border-color: #D32F2F;">
+                    <div class="stat-label">Gastos Totales</div>
+                    <div id="stat-expense" class="stat-value" style="color: #D32F2F;">$0.00</div>
+                    <div style="font-size: 0.8em; color: #888; margin-top: 5px;">
+                        Fijos: <span id="stat-fixed">$0</span> | Variables: <span id="stat-variable">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3 style="color: var(--color-principal-azul); border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                    <i class="fas fa-plus-circle"></i> Nuevo Gasto
+                </h3>
+                <form id="expense-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Concepto:</label>
+                            <input type="text" id="exp-concept" required placeholder="Ej: Luz, Proveedor X...">
+                        </div>
+                        <div class="input-group">
+                            <label>Tipo de Gasto:</label>
+                            <select id="exp-type">
+                                <option value="Variable">⚠️ Variable / Imprevisto</option>
+                                <option value="Fijo">📅 Fijo / Recurrente</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Categoría:</label>
+                            <select id="exp-category">
+                                <option value="Operativo">Operativo</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Nomina">Nómina</option>
+                                <option value="Insumos">Insumos</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Monto ($):</label>
+                            <input type="number" id="exp-amount" required min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-principal" style="width: auto; background-color: #D32F2F; color: white;">
+                        <i class="fas fa-save"></i> Guardar Gasto
+                    </button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h3 style="color: #666;">Movimientos del Periodo</h3>
+                <table class="full-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Concepto</th>
+                            <th>Tipo</th>
+                            <th>Categoría</th>
+                            <th style="text-align: right;">Monto</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenses-list"></tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/global.js"></script>
+    <script src="expenses.js"></script>
+</body>
+</html>

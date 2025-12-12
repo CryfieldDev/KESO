@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">PANEL CONTROL</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active">
+                    <i class="fas fa-home"></i> Inicio
+                </a>
+                <a href="/inventory/inventory.html" class="menu-item">
+                    <i class="fas fa-boxes"></i> Inventario
+                </a>
+                <a href="/billing/billing.html" class="menu-item">
+                    <i class="fas fa-cash-register"></i> Facturar
+                </a>
+                <a href="/sales/sales.html" class="menu-item">
+                    <i class="fas fa-chart-line"></i> Ventas
+                </a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2 id="user-greeting">Hola, Usuario 👋</h2>
+                    <p>Aquí tienes el resumen de tu negocio hoy.</p>
+                </div>
+                <div style="font-size: 3em; opacity: 0.2;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card card-blue">
+                    <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="stat-info">
+                        <h4>Productos</h4>
+                        <p id="stat-total">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card card-orange">
+                    <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-info">
+                        <h4>Inversión</h4>
+                        <p id="stat-valor">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="stat-card card-green">
+                    <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+                    <div class="stat-info">
+                        <h4>Ganancia Est.</h4>
+                        <p id="stat-ganancia">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="stat-card card-purple" onclick="window.location.href='/sales/sales.html'" style="cursor: pointer;">
+                    <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <h4>Ver Reportes</h4>
+                        <p style="font-size: 1em; color: #7B1FA2;">Ir al historial &rarr;</p> 
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h3>Accesos Rápidos</h3>
+                <div class="actions-grid">
+                    <a href="/inventory/inventory.html" class="action-btn">
+                        <i class="fas fa-box-open"></i>
+                        Ver Inventario Completo
+                    </a>
+                    <a href="/billing/billing.html" class="action-btn">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        Nueva Factura
+                    </a>
+                    <a href="/sales/sales.html" class="action-btn">
+                        <i class="fas fa-chart-bar"></i>
+                        Reporte de Ventas
+                    </a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/global.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

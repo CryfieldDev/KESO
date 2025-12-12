@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Iniciar Sesión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-container">
+        
+        <div class="auth-brand">
+            <img src="/img/logo1.png" class="brand-logo-big logo-round" alt="Logo">
+            <h1>KESO SYSTEM</h1>
+            <p>Gestión inteligente para tu negocio.<br>Inventario, Ventas y Facturación en un solo lugar.</p>
+        </div>
+
+        <div class="auth-form-wrapper">
+            <div class="auth-form-content">
+                <h2 class="auth-title">Bienvenido de nuevo</h2>
+                <p class="auth-subtitle">Por favor ingresa tus credenciales para continuar.</p>
+
+                <form id="login-form">
+                    <div>
+                        <label class="input-label">Usuario</label>
+                        <input type="text" id="username" class="modern-input" placeholder="Ej. Admin" required autocomplete="off">
+                    </div>
+                    
+                    <div>
+                        <label class="input-label">Contraseña</label>
+                        <input type="password" id="password" class="modern-input" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-auth">
+                        Acceder <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div style="margin-top: 30px; text-align: center; color: #666;">
+                    ¿No tienes cuenta? 
+                    <a href="/register/register.html" class="auth-link">Regístrate aquí</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/global.js"></script>
+    <script>
+        // Lógica de Login (Igual que antes, solo cambiamos clases HTML)
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${window.API_URL}/login`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('keso_user', data.user.username);
+                    showToast(`¡Hola de nuevo, ${data.user.username}!`, 'success');
+                    setTimeout(() => { window.location.href = '/dashboard/dashboard.html'; }, 1000);
+                } else {
+                    showToast(data.message || 'Error de credenciales', 'error');
+                }
+            } catch (err) { showToast('Sin conexión con el servidor', 'error'); }
+        });
+    </script>
+</body>
+</html>

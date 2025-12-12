@@ -1,0 +1,66 @@
+{
+  "name": "keso-system",
+  "version": "2.0.0",
+  "description": "Sistema de Gestión ERP KESO",
+  "main": "main.js",
+  "author": "CryfieldDEV",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CryfieldDev/KESO.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.keso.app",
+    "productName": "KESO System",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "CryfieldDev",
+        "repo": "KESO"
+      }
+    ],
+    "files": [
+      "**/*",
+      ".env",
+      "!dist/*",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "img/KESO.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KESO"
+    }
+  },
+  "keywords": [
+    "keso",
+    "erp",
+    "inventario",
+    "pos"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "electron-updater": "^6.1.7",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.15.3",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
