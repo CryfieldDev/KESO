@@ -6,21 +6,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
     <style>
-        /* Estilo para enlace deshabilitado */
-        a.disabled {
-            pointer-events: none;
-            opacity: 0.5;
-            cursor: default;
-        }
+        a.disabled { pointer-events: none; opacity: 0.5; cursor: default; }
     </style>
 </head>
 <body class="auth-body">
 
     <div class="auth-container">
         <div class="auth-brand">
-            <img src="/img/logo1.png" class="brand-logo-big logo-round" alt="Logo">
+            <img src="/img/KESO.png" class="brand-logo-big logo-round" alt="Logo">
             <h1>KESO SYSTEM</h1>
-            <p>Gestión inteligente para tu negocio.<br>Inventario, Ventas y Facturación en un solo lugar.</p>
+            <p>Gestión inteligente para tu negocio.<br>Inventario, Ventas y Facturación.</p>
         </div>
 
         <div class="auth-form-wrapper">
@@ -68,52 +63,51 @@
     <script>
         const { ipcRenderer } = require('electron');
         
-        // Referencias UI
+        // 1. Verificar actualizaciones al cargar
+        ipcRenderer.send('manual-check-update');
+
         const btn = document.getElementById('btn-login');
         const userIn = document.getElementById('username');
         const passIn = document.getElementById('password');
         const subTitle = document.querySelector('.auth-subtitle');
         const updateBox = document.getElementById('update-notification');
-        const registerLink = document.getElementById('btn-register'); // Referencia al link
-
-        // =======================================================
-        // 1. CONTROL DE ACTUALIZACIONES
-        // =======================================================
+        const registerLink = document.getElementById('btn-register');
 
         // A) Buscando...
         ipcRenderer.on('checking_for_update', () => {
             subTitle.innerText = "Buscando actualizaciones...";
             subTitle.style.color = "#0047c0";
-            // Aseguramos que el link esté bloqueado
             registerLink.classList.add('disabled');
+            // Opcional: showToast('Verificando versión...', 'info');
         });
 
-        // B) ¡TODO LIMPIO! -> DESBLOQUEAR TODO
+        // B) ¡TODO LIMPIO! (Aquí agregamos el Toast)
         ipcRenderer.on('update_not_available', () => {
             setTimeout(() => { 
                 subTitle.innerText = "Por favor ingresa tus credenciales.";
                 subTitle.style.color = "#666";
                 
-                // Habilitar Inputs y Botón
-                userIn.disabled = false;
-                passIn.disabled = false;
+                // Desbloquear UI
+                userIn.disabled = false; 
+                passIn.disabled = false; 
                 btn.disabled = false;
                 btn.innerHTML = 'Acceder <i class="fas fa-arrow-right"></i>';
-                
-                // Habilitar Link de Registro
                 registerLink.classList.remove('disabled');
-                
                 userIn.focus();
+
+                // --> AQUI ESTÁ LA MAGIA <--
                 showToast('Sistema actualizado y listo.', 'success');
             }, 800);
         });
 
-        // C) ¡HAY ACTUALIZACIÓN! -> MANTENER BLOQUEO
+        // C) ¡HAY ACTUALIZACIÓN! (Aquí agregamos el Toast)
         ipcRenderer.on('update_available', () => {
             subTitle.innerText = "Actualización obligatoria en curso...";
             updateBox.style.display = 'block';
             btn.innerHTML = '<div class="loader-spinner"></div> Actualizando...';
-            // El link sigue disabled por defecto, así que no se puede escapar
+            
+            // --> AQUI ESTÁ LA MAGIA <--
+            showToast('Nueva versión detectada. Descargando...', 'info');
         });
 
         // D) Progreso
@@ -123,41 +117,34 @@
             document.getElementById('update-percent').innerText = p + '%';
         });
 
-        // E) Listo
+        // E) Descarga Lista (Aquí agregamos el Toast)
         ipcRenderer.on('update_downloaded', () => {
             document.getElementById('update-message').innerHTML = '<b>¡Listo! Reiniciando app...</b>';
             document.getElementById('update-bar').style.background = '#2E7D32';
+            
+            // --> AQUI ESTÁ LA MAGIA <--
+            showToast('Actualización completada. Reiniciando...', 'success');
         });
 
-        // F) ERROR -> DESBLOQUEAR (Modo Fallo Seguro)
+        // F) Error (Ya lo tenías, pero lo mantenemos)
         ipcRenderer.on('update_error', (e, msg) => {
             subTitle.innerText = "Error en actualización. Acceso permitido.";
-            
-            // Desbloqueamos todo por si acaso
-            userIn.disabled = false;
-            passIn.disabled = false;
-            btn.disabled = false;
-            registerLink.classList.remove('disabled'); // Liberar registro
-
+            userIn.disabled = false; passIn.disabled = false; btn.disabled = false;
+            registerLink.classList.remove('disabled');
             btn.innerHTML = 'Acceder (Sin Actualizar) <i class="fas fa-exclamation-triangle"></i>';
+            
             showToast('Fallo al actualizar. Revisa tu conexión.', 'warning');
         });
 
-
-        // =======================================================
-        // 2. LÓGICA DE LOGIN
-        // =======================================================
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<div class="loader-spinner"></div> Verificando...';
 
             try {
                 const res = await fetch(`${window.API_URL}/login`, {
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ username: userIn.value, password: passIn.value })
                 });
                 const data = await res.json();

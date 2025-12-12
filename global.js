@@ -2,17 +2,20 @@
    GLOBAL.JS - Lógica compartida para toda la App KESO
    =========================================================== */
 
-// 1. INYECTAR HTML GLOBAL (Toasts y Modal)
+// 1. VARIABLE GLOBAL API
+window.API_URL = 'http://localhost:3000/api';
+
+// 2. INYECTAR HTML GLOBAL AL CARGAR
 document.addEventListener('DOMContentLoaded', () => {
     
-    // A) Contenedor de Notificaciones
+    // A) Contenedor de Notificaciones (Si no existe)
     if (!document.getElementById('toast-container')) {
         const container = document.createElement('div');
         container.id = 'toast-container';
         document.body.appendChild(container);
     }
 
-    // B) Modal de Confirmación (NUEVO)
+    // B) Modal de Confirmación
     if (!document.getElementById('custom-confirm-modal')) {
         const modal = document.createElement('div');
         modal.id = 'custom-confirm-modal';
@@ -35,31 +38,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 2. FUNCIÓN DE NOTIFICACIÓN (TOAST)
-window.showToast = function(mensaje, tipo = 'success') {
+// ==========================================
+// 3. SISTEMA DE NOTIFICACIONES (LIQUID GLASS)
+// ==========================================
+window.showToast = function(mensaje, tipo = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
+    // A) Definir Icono según tipo
+    let iconClass = 'fa-info-circle';
+    if (tipo === 'success') iconClass = 'fa-check-circle';
+    if (tipo === 'error') iconClass = 'fa-times-circle'; // O fa-exclamation-circle
+    if (tipo === 'warning') iconClass = 'fa-exclamation-triangle';
+
+    // B) Crear el Elemento HTML
     const toast = document.createElement('div');
-    toast.className = `toast toast-${tipo}`;
-    
-    let icono = '<i class="fas fa-info-circle"></i>';
-    if (tipo === 'success') icono = '<i class="fas fa-check-circle"></i>';
-    if (tipo === 'error') icono = '<i class="fas fa-times-circle"></i>';
-    if (tipo === 'warning') icono = '<i class="fas fa-exclamation-triangle"></i>';
+    toast.className = `toast toast-${tipo}`; // Clase base + modificador de color
+    toast.innerHTML = `
+        <i class="fas ${iconClass}"></i>
+        <span>${mensaje}</span>
+    `;
 
-    toast.innerHTML = `${icono} <span>${mensaje}</span>`;
+    // C) Agregar al DOM
     container.appendChild(toast);
-    
-    requestAnimationFrame(() => { toast.classList.add('show'); });
 
+    // D) Animación de Entrada (Pequeño delay para que CSS detecte el cambio)
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+    });
+
+    // E) Animación de Salida y Limpieza
     setTimeout(() => {
-        toast.classList.remove('show');
-        toast.addEventListener('transitionend', () => { toast.remove(); });
-    }, 3500);
+        toast.classList.remove('show'); // Inicia la salida
+        
+        // Esperar a que termine la transición CSS (0.5s) antes de borrar del DOM
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 600); 
+    }, 4000); // Duración visible
 };
 
-// 3. FUNCIÓN DE CONFIRMACIÓN PERSONALIZADA (Promesa)
+// ==========================================
+// 4. FUNCIÓN DE CONFIRMACIÓN (Promesa)
+// ==========================================
 window.showConfirm = function(mensaje) {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-confirm-modal');
@@ -67,36 +90,26 @@ window.showConfirm = function(mensaje) {
         const btnYes = document.getElementById('btn-confirm-yes');
         const btnNo = document.getElementById('btn-confirm-no');
 
-        // Configurar mensaje
+        // Configurar mensaje y mostrar
         msgText.textContent = mensaje;
-        
-        // Mostrar modal
         modal.classList.add('show');
 
-        // Función para limpiar y cerrar
-        const close = () => {
+        // Función de limpieza interna
+        const closeAndResolve = (result) => {
             modal.classList.remove('show');
-            // Clonamos los botones para eliminar los EventListeners viejos
-            // Esto evita que se acumulen clics si abres el modal muchas veces
+            // Quitamos los listeners viejos clonando los botones
+            // (Evita que se ejecute la acción múltiples veces si reúsas el modal)
             const newYes = btnYes.cloneNode(true);
             const newNo = btnNo.cloneNode(true);
             btnYes.parentNode.replaceChild(newYes, btnYes);
             btnNo.parentNode.replaceChild(newNo, btnNo);
+            
+            resolve(result);
         };
 
-        // Manejar Clics
-        // NOTA: Usamos onclick aquí temporalmente antes de clonar para resolver la promesa
-        btnYes.onclick = () => {
-            close();
-            resolve(true); // El usuario dijo SÍ
-        };
-
-        btnNo.onclick = () => {
-            close();
-            resolve(false); // El usuario dijo NO
-        };
+        // Asignar eventos temporales
+        // Nota: Al usar onclick directo aquí simplificamos la lógica de limpieza anterior
+        btnYes.onclick = () => closeAndResolve(true);
+        btnNo.onclick = () => closeAndResolve(false);
     });
 };
-
-// 4. VARIABLE GLOBAL API
-window.API_URL = 'http://localhost:3000/api';
