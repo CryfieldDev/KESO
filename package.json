@@ -1,6 +1,6 @@
 {
   "name": "keso-system",
-  "version": "2.2.1",
+  "version": "2.2.5",
   "description": "Sistema de Gestión ERP KESO",
   "main": "main.js",
   "author": "CryfieldDev",
@@ -15,6 +15,9 @@
   "build": {
     "appId": "com.keso.app",
     "productName": "KESO System",
+    
+    "artifactName": "KESO.System.Setup.${version}.${ext}", 
+
     "asar": false,
     "directories": {
       "output": "dist"

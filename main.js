@@ -2,85 +2,86 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
-// ==========================================
-// 1. CONFIGURACIÓN DE ACTUALIZACIONES
-// ==========================================
+let mainWindow = null;
 
-// Truco para probar actualizaciones en modo desarrollo (npm start)
-// Si borras esto, solo funcionará cuando generes el .exe instalado
-if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-  autoUpdater.forceDevUpdateConfig = true;
+class AppUpdater {
+  constructor() {
+    // Configuración Base
+    if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
+      autoUpdater.forceDevUpdateConfig = true;
+    }
+    autoUpdater.verifyUpdateCodeSignature = false; 
+
+    // Listeners
+    this.setupListeners();
+
+    // Esperamos un poco para asegurar que la ventana cargó y puede escuchar
+    setTimeout(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 1500);
+  }
+
+  setupListeners() {
+    // 1. AVISAR QUE EMPEZÓ A BUSCAR (Para bloquear UI)
+    autoUpdater.on('checking-for-update', () => {
+      console.log('🔍 [Updater] Verificando versiones...');
+      if (mainWindow) mainWindow.webContents.send('checking_for_update');
+    });
+
+    // 2. NO HAY ACTUALIZACIONES (SEÑAL DE DESBLOQUEO)
+    autoUpdater.on('update-not-available', () => {
+      console.log('✅ [Updater] Todo al día.');
+      if (mainWindow) mainWindow.webContents.send('update_not_available');
+    });
+
+    // 3. SÍ HAY ACTUALIZACIÓN (MANTENER BLOQUEO Y MOSTRAR BARRA)
+    autoUpdater.on('update-available', (info) => {
+      console.log(`⬇️ [Updater] Encontrada v${info.version}`);
+      if (mainWindow) mainWindow.webContents.send('update_available');
+    });
+
+    // 4. PROGRESO DE DESCARGA
+    autoUpdater.on('download-progress', (progressObj) => {
+      if (mainWindow) mainWindow.webContents.send('update_progress', progressObj.percent);
+    });
+
+    // 5. DESCARGA LISTA
+    autoUpdater.on('update-downloaded', () => {
+      if (mainWindow) mainWindow.webContents.send('update_downloaded');
+      setTimeout(() => { autoUpdater.quitAndInstall(); }, 3000);
+    });
+
+    // 6. ERROR (IMPORTANTE: DESBLOQUEAR PARA NO DEJAR AL USUARIO ATRAPADO)
+    autoUpdater.on('error', (err) => {
+      console.error('⚠️ [Updater] Error:', err);
+      if (mainWindow) mainWindow.webContents.send('update_error', err.message);
+    });
+  }
 }
 
-// Logs para la terminal (Así sabrás si funciona)
-autoUpdater.on('checking-for-update', () => {
-  console.log('🔍 Buscando actualizaciones en GitHub...');
-});
-autoUpdater.on('update-available', (info) => {
-  console.log('✅ ¡Actualización disponible detectada!', info.version);
-});
-autoUpdater.on('update-not-available', (info) => {
-  console.log('❌ No hay actualizaciones nuevas. Tienes la última versión.');
-});
-autoUpdater.on('error', (err) => {
-  console.log('⚠️ Error en el sistema de actualizaciones:', err);
-});
-autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "⬇️ Descargando: " + progressObj.percent.toFixed(2) + '%';
-  console.log(log_message);
-});
-autoUpdater.on('update-downloaded', (info) => {
-  console.log('📦 Actualización descargada. Se instalará automáticamente al cerrar.');
-});
-
-// ==========================================
-// 2. SERVIDOR BACKEND
-// ==========================================
-// Importamos el servidor para que arranque junto con la App
+// ... (RESTO DEL SERVIDOR Y CREATEWINDOW IGUAL QUE ANTES) ...
 require('./server.js'); 
 
 function createWindow() {
-    // Crear la ventana del navegador
-    const win = new BrowserWindow({
-        width: 1200,
-        height: 800,
+    mainWindow = new BrowserWindow({
+        width: 1200, height: 800,
         title: "KESO - Sistema de Inventario",
-        icon: path.join(__dirname, 'img/KESO.png'), // Tu icono
-        show: false, // <--- IMPORTANTE: No mostrarla todavía
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false
-        },
-        autoHideMenuBar: true // Oculta la barra de menú
+        icon: path.join(__dirname, 'img/KESO.png'),
+        show: false,
+        webPreferences: { nodeIntegration: true, contextIsolation: false },
+        autoHideMenuBar: true
     });
 
-    // Cargar la URL de tu servidor local
-    win.loadURL('http://localhost:3000');
+    mainWindow.loadURL('http://localhost:3000');
+    mainWindow.maximize();
+    mainWindow.show();
 
-    // Maximizar la ventana y luego mostrarla
-    win.maximize();
-    win.show();
-
-    // ==========================================
-    // 3. INICIAR BÚSQUEDA DE ACTUALIZACIONES
-    // ==========================================
-    // Esto se ejecuta apenas se abre la ventana
-    autoUpdater.checkForUpdatesAndNotify();
+    new AppUpdater();
 }
 
-// Cuando Electron esté listo
 app.whenReady().then(() => {
     createWindow();
-
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
-    });
+    app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

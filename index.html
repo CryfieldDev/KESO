@@ -5,11 +5,18 @@
     <title>KESO - Iniciar Sesión</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Estilo para enlace deshabilitado */
+        a.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: default;
+        }
+    </style>
 </head>
 <body class="auth-body">
 
     <div class="auth-container">
-        
         <div class="auth-brand">
             <img src="/img/logo1.png" class="brand-logo-big logo-round" alt="Logo">
             <h1>KESO SYSTEM</h1>
@@ -18,92 +25,154 @@
 
         <div class="auth-form-wrapper">
             <div class="auth-form-content">
-                <h2 class="auth-title">Bienvenido de nuevo</h2>
-                <p class="auth-subtitle">Por favor ingresa tus credenciales para continuar.</p>
+                <h2 class="auth-title">Bienvenido</h2>
+                <p class="auth-subtitle">Iniciando sistema...</p>
 
                 <form id="login-form">
                     <div>
                         <label class="input-label">Usuario</label>
-                        <input type="text" id="username" class="modern-input" placeholder="Ej. Admin" required autocomplete="off">
+                        <input type="text" id="username" class="modern-input" placeholder="Ej. Admin" required autocomplete="off" disabled>
                     </div>
                     
                     <div>
                         <label class="input-label">Contraseña</label>
-                        <input type="password" id="password" class="modern-input" placeholder="••••••••" required>
+                        <input type="password" id="password" class="modern-input" placeholder="••••••••" required disabled>
                     </div>
 
-                    <button type="submit" class="btn-auth">
-                        Acceder <i class="fas fa-arrow-right"></i>
+                    <button type="submit" class="btn-auth" disabled id="btn-login">
+                        <div class="loader-spinner"></div> Conectando...
                     </button>
                 </form>
 
+                <div id="update-notification" style="display: none; margin-top: 25px; background: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid #cce5ff;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span id="update-message" style="font-size: 0.9em; color: #004085; font-weight: 600;">
+                            <i class="fas fa-sync-alt fa-spin"></i> Actualizando KESO...
+                        </span>
+                        <span id="update-percent" style="font-size: 0.9em; color: var(--color-principal-azul); font-weight: bold;">0%</span>
+                    </div>
+                    <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div id="update-bar" style="width: 0%; height: 100%; background: var(--color-principal-azul); transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
                 <div style="margin-top: 30px; text-align: center; color: #666;">
                     ¿No tienes cuenta? 
-                    <a href="/register/register.html" class="auth-link">Regístrate aquí</a>
+                    <a href="/register/register.html" class="auth-link disabled" id="btn-register">Regístrate aquí</a>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script src="/global.js"></script>
     <script>
-        // Lógica de Login con Animación de Carga
+        const { ipcRenderer } = require('electron');
+        
+        // Referencias UI
+        const btn = document.getElementById('btn-login');
+        const userIn = document.getElementById('username');
+        const passIn = document.getElementById('password');
+        const subTitle = document.querySelector('.auth-subtitle');
+        const updateBox = document.getElementById('update-notification');
+        const registerLink = document.getElementById('btn-register'); // Referencia al link
+
+        // =======================================================
+        // 1. CONTROL DE ACTUALIZACIONES
+        // =======================================================
+
+        // A) Buscando...
+        ipcRenderer.on('checking_for_update', () => {
+            subTitle.innerText = "Buscando actualizaciones...";
+            subTitle.style.color = "#0047c0";
+            // Aseguramos que el link esté bloqueado
+            registerLink.classList.add('disabled');
+        });
+
+        // B) ¡TODO LIMPIO! -> DESBLOQUEAR TODO
+        ipcRenderer.on('update_not_available', () => {
+            setTimeout(() => { 
+                subTitle.innerText = "Por favor ingresa tus credenciales.";
+                subTitle.style.color = "#666";
+                
+                // Habilitar Inputs y Botón
+                userIn.disabled = false;
+                passIn.disabled = false;
+                btn.disabled = false;
+                btn.innerHTML = 'Acceder <i class="fas fa-arrow-right"></i>';
+                
+                // Habilitar Link de Registro
+                registerLink.classList.remove('disabled');
+                
+                userIn.focus();
+                showToast('Sistema actualizado y listo.', 'success');
+            }, 800);
+        });
+
+        // C) ¡HAY ACTUALIZACIÓN! -> MANTENER BLOQUEO
+        ipcRenderer.on('update_available', () => {
+            subTitle.innerText = "Actualización obligatoria en curso...";
+            updateBox.style.display = 'block';
+            btn.innerHTML = '<div class="loader-spinner"></div> Actualizando...';
+            // El link sigue disabled por defecto, así que no se puede escapar
+        });
+
+        // D) Progreso
+        ipcRenderer.on('update_progress', (e, percent) => {
+            const p = Math.round(percent);
+            document.getElementById('update-bar').style.width = p + '%';
+            document.getElementById('update-percent').innerText = p + '%';
+        });
+
+        // E) Listo
+        ipcRenderer.on('update_downloaded', () => {
+            document.getElementById('update-message').innerHTML = '<b>¡Listo! Reiniciando app...</b>';
+            document.getElementById('update-bar').style.background = '#2E7D32';
+        });
+
+        // F) ERROR -> DESBLOQUEAR (Modo Fallo Seguro)
+        ipcRenderer.on('update_error', (e, msg) => {
+            subTitle.innerText = "Error en actualización. Acceso permitido.";
+            
+            // Desbloqueamos todo por si acaso
+            userIn.disabled = false;
+            passIn.disabled = false;
+            btn.disabled = false;
+            registerLink.classList.remove('disabled'); // Liberar registro
+
+            btn.innerHTML = 'Acceder (Sin Actualizar) <i class="fas fa-exclamation-triangle"></i>';
+            showToast('Fallo al actualizar. Revisa tu conexión.', 'warning');
+        });
+
+
+        // =======================================================
+        // 2. LÓGICA DE LOGIN
+        // =======================================================
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // 1. Obtener referencias
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const btnSubmit = document.querySelector('.btn-auth');
-            
-            const u = usernameInput.value;
-            const p = passwordInput.value;
-
-            // 2. Guardar estado original del botón
-            const originalBtnContent = btnSubmit.innerHTML;
-
-            // 3. ACTIVAR MODO CARGA (Spinner)
-            btnSubmit.disabled = true; 
-            btnSubmit.innerHTML = '<div class="loader-spinner"></div> Iniciando...';
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader-spinner"></div> Verificando...';
 
             try {
-                // Hacemos la petición
                 const res = await fetch(`${window.API_URL}/login`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username: u, password: p })
+                    body: JSON.stringify({ username: userIn.value, password: passIn.value })
                 });
-                
                 const data = await res.json();
 
                 if (res.ok) {
-                    // LOGIN EXITOSO
                     localStorage.setItem('keso_user', data.user.username);
-                    showToast(`¡Hola de nuevo, ${data.user.username}!`, 'success');
-                    
-                    // Esperamos 1s mostrando el spinner antes de cambiar de página para que se vea fluido
-                    setTimeout(() => { 
-                        window.location.href = '/dashboard/dashboard.html'; 
-                    }, 1000);
-
+                    showToast(`¡Bienvenido ${data.user.username}!`, 'success');
+                    setTimeout(() => window.location.href = '/dashboard/dashboard.html', 1000);
                 } else {
-                    // ERROR DE CREDENCIALES
-                    throw new Error(data.message || 'Error de credenciales');
+                    throw new Error(data.message || 'Credenciales incorrectas');
                 }
-
-            } catch (err) { 
-                // ERROR DE CONEXIÓN O CREDENCIALES
-                console.error(err);
-                showToast(err.message || 'Sin conexión con el servidor', 'error');
-                
-                // 4. RESTAURAR BOTÓN (Importante para que pueda intentar de nuevo)
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = originalBtnContent;
-                
-                // Limpiar password y hacer focus
-                passwordInput.value = '';
-                passwordInput.focus();
+            } catch (err) {
+                showToast(err.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
             }
         });
     </script>
