@@ -1,9 +1,9 @@
 {
   "name": "keso-system",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Sistema de Gestión ERP KESO",
   "main": "main.js",
-  "author": "CryfieldDEV",
+  "author": "CryfieldDev",
   "repository": {
     "type": "git",
     "url": "https://github.com/CryfieldDev/KESO.git"
