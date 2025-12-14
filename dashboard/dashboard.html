@@ -5,6 +5,19 @@
     <title>KESO - Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Estilos específicos para las tarjetas financieras */
+        .stat-card.card-investment { border-left: 5px solid #1976D2; }
+        .stat-card.card-profit { border-left: 5px solid #388E3C; }
+        .stat-card.card-debt { border-left: 5px solid #F57C00; } /* Naranja para deuda */
+        
+        .stat-card .stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8em; margin-right: 15px; }
+        
+        /* Colores de iconos */
+        .icon-blue { background: #E3F2FD; color: #1976D2; }
+        .icon-green { background: #E8F5E9; color: #388E3C; }
+        .icon-orange { background: #FFF3E0; color: #F57C00; }
+    </style>
 </head>
 <body class="dashboard-body">
 
@@ -12,27 +25,17 @@
         
         <aside class="sidebar">
             <div class="logo-area">
-                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
-                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">PANEL CONTROL</h3>
+                <img src="/img/logo1.svg" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">PANEL DE CONTROL</h3>
             </div>
-            
             <nav class="sidebar-menu">
-                <a href="#" class="menu-item active">
-                    <i class="fas fa-home"></i> Inicio
-                </a>
-                <a href="/inventory/inventory.html" class="menu-item">
-                    <i class="fas fa-boxes"></i> Inventario
-                </a>
-                <a href="/billing/billing.html" class="menu-item">
-                    <i class="fas fa-cash-register"></i> Facturar
-                </a>
-                <a href="/sales/sales.html" class="menu-item">
-                    <i class="fas fa-chart-line"></i> Ventas
-                </a>
+                <a href="#" class="menu-item active"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="/billing/billing.html" class="menu-item"><i class="fas fa-cash-register"></i> Facturar</a>
+                                <a href="/receivables/receivables.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i> Por Cobrar</a>
+                <a href="/sales/sales.html" class="menu-item"><i class="fas fa-chart-line"></i> Ventas</a>
                 <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
-                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
             </nav>
         </aside>
 
@@ -40,70 +43,99 @@
             
             <div class="welcome-banner">
                 <div class="welcome-text">
-                    <h2 id="user-greeting">Hola, Usuario 👋</h2>
-                    <p>Aquí tienes el resumen de tu negocio hoy.</p>
+                    <h2 id="greeting">¡Hola!</h2>
+                    <p>Aquí tienes el resumen financiero de tu negocio hoy.</p>
                 </div>
-                <div style="font-size: 3em; opacity: 0.2;">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div style="font-size: 3em; opacity: 0.2;"><i class="fas fa-chart-pie"></i></div>
             </div>
 
             <div class="stats-grid">
-                <div class="stat-card card-blue">
-                    <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                
+                <div class="stat-card card-investment">
+                    <div class="stat-icon icon-blue">
+                        <i class="fas fa-cubes-stacked"></i>
+                    </div>
                     <div class="stat-info">
-                        <h4>Productos</h4>
-                        <p id="stat-total">0</p>
+                        <h4>Inversión en Stock</h4>
+                        <p id="stat-inversion">Cargando...</p>
+                        <small style="color:#666;">Costo total de mercancía</small>
                     </div>
                 </div>
 
-                <div class="stat-card card-orange">
-                    <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <div class="stat-card card-profit">
+                    <div class="stat-icon icon-green">
+                        <i class="fas fa-arrow-trend-up"></i>
+                    </div>
                     <div class="stat-info">
-                        <h4>Inversión</h4>
-                        <p id="stat-valor">$0.00</p>
+                        <h4>Ganancia Estimada</h4>
+                        <p id="stat-ganancia">Cargando...</p>
+                        <small style="color:#666;">Si vendes todo el stock</small>
                     </div>
                 </div>
 
-                <div class="stat-card card-green">
-                    <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+                <div class="stat-card card-debt">
+                    <div class="stat-icon icon-orange">
+                        <i class="fas fa-clock"></i> </div>
                     <div class="stat-info">
-                        <h4>Ganancia Est.</h4>
-                        <p id="stat-ganancia">$0.00</p>
+                        <h4>Te Deben</h4>
+                        <p id="stat-por-cobrar">Cargando...</p>
+                        <small style="color:#666;">Cuentas pendientes</small>
                     </div>
                 </div>
 
-                <div class="stat-card card-purple" onclick="window.location.href='/sales/sales.html'" style="cursor: pointer;">
-                    <div class="stat-icon"><i class="fas fa-receipt"></i></div>
-                    <div class="stat-info">
-                        <h4>Ver Reportes</h4>
-                        <p style="font-size: 1em; color: #7B1FA2;">Ir al historial &rarr;</p> 
-                    </div>
-                </div>
             </div>
 
-            <div class="quick-actions">
-                <h3>Accesos Rápidos</h3>
-                <div class="actions-grid">
-                    <a href="/inventory/inventory.html" class="action-btn">
-                        <i class="fas fa-box-open"></i>
-                        Ver Inventario Completo
-                    </a>
-                    <a href="/billing/billing.html" class="action-btn">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        Nueva Factura
-                    </a>
-                    <a href="/sales/sales.html" class="action-btn">
-                        <i class="fas fa-chart-bar"></i>
-                        Reporte de Ventas
-                    </a>
-                </div>
+            <h3 style="margin-top: 40px; margin-bottom: 20px; color: #555;">Accesos Directos y Reportes</h3>
+            
+            <div class="actions-grid">
+                <a href="/billing/billing.html" class="action-btn">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Nueva Venta</span>
+                </a>
+                
+                <a href="/receivables/receivables.html" class="action-btn">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Cobrar Deudas</span>
+                </a>
+
+                <a href="/inventory/inventory.html" class="action-btn">
+                    <i class="fas fa-boxes"></i>
+                    <span>Ver Inventario</span>
+                </a>
+
+                <a href="/sales/sales.html" class="action-btn">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Historial Ventas</span>
+                </a>
             </div>
 
         </main>
     </div>
 
     <script src="/global.js"></script>
-    <script src="dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Saludo personalizado
+            const user = localStorage.getItem('keso_user') || 'Usuario';
+            document.getElementById('greeting').innerText = `¡Hola, ${user}!`;
+
+            // Cargar Estadísticas
+            try {
+                const res = await fetch(`${window.API_URL}/dashboard-stats`);
+                const data = await res.json();
+                
+                // Actualizar DOM
+                document.getElementById('stat-inversion').innerText = `$${data.valorInventario}`;
+                document.getElementById('stat-ganancia').innerText = `$${data.gananciaEstimada}`;
+                
+                // Nuevo Campo: Por Cobrar
+                document.getElementById('stat-por-cobrar').innerText = `$${data.porCobrar}`;
+
+            } catch (error) {
+                console.error(error);
+                if(window.showToast) showToast('Error cargando estadísticas', 'error');
+            }
+        });
+    </script>
 </body>
 </html>

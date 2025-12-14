@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KESO - Por Cobrar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* === ESTILOS DE LA TARJETA DE DEUDA === */
+        .receivable-card {
+            background: white; 
+            border-radius: 8px; /* Bordes un poco menos redondos para encajar con el resto */
+            padding: 15px 20px; /* Padding más compacto */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            margin-bottom: 12px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-left: 5px solid #FFB74D; /* Naranja para indicar pendiente */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Efecto sutil al pasar el mouse */
+        .receivable-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .debt-info h4 { 
+            margin: 0; 
+            color: #333; 
+            font-size: 1.1em; /* Tamaño de letra más normal */
+            font-weight: 700;
+        }
+
+        .debt-info p { 
+            margin: 4px 0 0; 
+            color: #666; 
+            font-size: 0.9em; 
+        }
+
+        .debt-amount { 
+            font-size: 1.4em; 
+            font-weight: 800; 
+            color: #D32F2F; 
+        }
+        
+        /* === ESTILOS PARA LOS BOTONES (Efecto Hover) === */
+        .btn-icon {
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Responsivo simple */
+        @media (max-width: 768px) {
+            .receivable-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .receivable-card > div {
+                width: 100%;
+                text-align: left !important;
+            }
+            .debt-amount {
+                margin-bottom: 10px;
+                display: block;
+            }
+            /* Alinear botones a la izquierda en móvil */
+            .receivable-card > div:last-child > div {
+                justify-content: flex-start !important;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="/img/logo1.svg" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">POR COBRAR</h3>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
+                <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
+                <a href="/billing/billing.html" class="menu-item"><i class="fas fa-cash-register"></i> Facturar</a>
+                
+                <a href="#" class="menu-item active" style="color: rgba(255, 255, 255, 0.8);">
+                    <i class="fas fa-hand-holding-usd"></i> Por Cobrar
+                </a>
+                
+                <a href="/sales/sales.html" class="menu-item"><i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header-tools">
+                <h1 style="color: var(--color-principal-azul); margin: 0;">Cuentas por Cobrar</h1>
+                
+                <div style="background: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 1.1em;">
+                    Total Pendiente: <span id="total-pending" style="color: #D32F2F; font-weight: bold;">$0.00</span>
+                </div>
+            </div>
+
+            <div id="receivables-list" style="margin-top: 20px;">
+                <div style="text-align: center; color: #999; margin-top: 50px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; margin-bottom: 10px; color: #ccc;"></i>
+                    <br>Cargando...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/global.js"></script>
+    <script src="receivables.js"></script>
+</body>
+</html>

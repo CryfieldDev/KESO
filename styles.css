@@ -1,5 +1,5 @@
 /* ===========================================================
-   STYLES.CSS - KESO SYSTEM V3.1 (LOGO GRANDE)
+   STYLES.CSS - KESO SYSTEM V3.1 (LOGO GRANDE + FIX BUSCADOR)
    =========================================================== */
 
 /* 1. VARIABLES Y BASE */
@@ -25,26 +25,43 @@ body {
 }
 
 /* ===========================================================
-   2. DISEÑO LOGIN & REGISTRO
+   2. DISEÑO LOGIN & REGISTRO (CON ANIMACIONES)
    =========================================================== */
 .auth-body { margin: 0; padding: 0; height: 100vh; width: 100%; display: flex; background: white; }
 .auth-container { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 100%; }
 
 .auth-brand {
-    background: linear-gradient(135deg, var(--color-principal-azul) 0%, #00296b 100%);
+    /* Fondo animado */
+    background: linear-gradient(-45deg, var(--color-principal-azul), #00296b, #001f52, #0047c0);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite; /* Movimiento del color de fondo */
+    
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     color: white; padding: 40px; text-align: center; position: relative; overflow: hidden;
 }
-.auth-brand::before { content: ''; position: absolute; top: -10%; left: -10%; width: 300px; height: 300px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; }
-.auth-brand::after { content: ''; position: absolute; bottom: -10%; right: -10%; width: 400px; height: 400px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; }
 
-.auth-brand h1 { font-size: 3em; margin: 20px 0 10px 0; font-weight: 800; letter-spacing: 2px; }
-.auth-brand p { font-size: 1.2em; opacity: 0.8; max-width: 400px; line-height: 1.5; }
+/* Bola Superior Izquierda */
+.auth-brand::before { 
+    content: ''; position: absolute; top: -10%; left: -10%; width: 300px; height: 300px; 
+    background: rgba(255, 255, 255, 0.05); border-radius: 50%; 
+    animation: floatOrb1 12s ease-in-out infinite; /* Animación de flotar */
+}
 
-/* AQUI EL CAMBIO: LOGO MÁS GRANDE (240px) */
+/* Bola Inferior Derecha */
+.auth-brand::after { 
+    content: ''; position: absolute; bottom: -10%; right: -10%; width: 400px; height: 400px; 
+    background: rgba(255, 255, 255, 0.05); border-radius: 50%; 
+    animation: floatOrb2 16s ease-in-out infinite; /* Animación de flotar */
+}
+
+.auth-brand h1 { font-size: 3em; margin: 20px 0 10px 0; font-weight: 800; letter-spacing: 2px; position: relative; z-index: 2; }
+.auth-brand p { font-size: 1.2em; opacity: 0.8; max-width: 400px; line-height: 1.5; position: relative; z-index: 2; }
+
 .brand-logo-big { 
-    width: 240px; /* Antes 180px */
+    width: 240px; 
     filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3)); 
+    position: relative; z-index: 2;
+    animation: logoFloat 6s ease-in-out infinite; /* Sutil flotación del logo */
 }
 
 .auth-form-wrapper { display: flex; justify-content: center; align-items: center; background: white; padding: 40px; }
@@ -68,8 +85,39 @@ body {
 }
 .btn-auth:hover { background-color: #003580; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 71, 192, 0.3); }
 
+/* ===========================================================
+   ANIMACIONES (KEYFRAMES)
+   =========================================================== */
+
+/* Entrada del formulario */
 @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
+/* Movimiento suave del fondo azul */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Movimiento de la bola 1 (Superior) */
+@keyframes floatOrb1 {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 50px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Movimiento de la bola 2 (Inferior) */
+@keyframes floatOrb2 {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(-40px, -60px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Movimiento sutil del logo */
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
 /* ===========================================================
    3. LAYOUT DEL SISTEMA (DASHBOARD)
    =========================================================== */
@@ -170,118 +218,126 @@ body {
 .action-btn:hover { border-color: var(--color-principal-azul); box-shadow: 0 5px 15px rgba(0,0,0,0.05); color: var(--color-principal-azul); }
 
 /* ===========================================================
-   6. MODALES, TOASTS Y ACTUALIZACIONES (LIQUID GLASS / IOS STYLE)
+   6. MODALES, TOASTS Y ACTUALIZACIONES
    =========================================================== */
-
-/* CONTENEDOR DE TOASTS (Centrado arriba) */
 #toast-container { 
-    position: fixed; top: 30px; 
-    left: 50%; transform: translateX(-50%); 
+    position: fixed; top: 30px; left: 50%; transform: translateX(-50%); 
     z-index: 99999; display: flex; flex-direction: column; gap: 15px; 
 }
-
-/* EL TOAST (Notificación Líquida) */
 .toast {
-    min-width: 380px; padding: 18px 25px; border-radius: 50px; /* Forma de píldora completa */
-    
-    /* EFECTO LIQUID GLASS OSCURO (Para contraste) */
-    background: rgba(28, 28, 30, 0.85); 
-    backdrop-filter: blur(25px) saturate(180%);
-    -webkit-backdrop-filter: blur(25px) saturate(180%);
-    
-    color: white; font-size: 15px; font-weight: 500; letter-spacing: 0.3px;
-    
-    /* Sombras y Bordes de Cristal */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-top: 1px solid rgba(255, 255, 255, 0.3); /* Brillo superior */
-    
+    min-width: 380px; padding: 18px 25px; border-radius: 50px; background: rgba(28, 28, 30, 0.85); 
+    backdrop-filter: blur(25px) saturate(180%); color: white; font-size: 15px; font-weight: 500;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 1px solid rgba(255, 255, 255, 0.15);
     display: flex; align-items: center; justify-content: center; gap: 15px;
-    opacity: 0; transform: translateY(-50px) scale(0.9); /* Cae desde arriba */
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto rebote suave */
+    opacity: 0; transform: translateY(-50px) scale(0.9); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
 .toast.show { opacity: 1; transform: translateY(0) scale(1); }
-
-/* Iconos brillantes dentro del glass */
 .toast i { font-size: 1.3em; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
-.toast-success i { color: #32D74B; } /* Verde iOS */
-.toast-error i { color: #FF453A; }   /* Rojo iOS */
-.toast-warning i { color: #FFD60A; } /* Amarillo iOS */
+.toast-success i { color: #32D74B; }
+.toast-error i { color: #FF453A; }
+.toast-warning i { color: #FFD60A; }
 
-
-/* BARRA DE ACTUALIZACIÓN (La que sale en el Login) */
-/* Usamos !important para sobrescribir los estilos en línea del HTML */
 #update-notification {
-    background: rgba(255, 255, 255, 0.7) !important; /* Cristal Blanco */
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    
-    border: 1px solid rgba(255, 255, 255, 0.8) !important;
-    border-radius: 20px !important;
-    padding: 20px !important;
-    margin-top: 25px !important;
-    box-shadow: 0 15px 35px rgba(0, 71, 192, 0.15) !important;
+    background: rgba(255, 255, 255, 0.7) !important; backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important; border-radius: 20px !important;
+    padding: 20px !important; margin-top: 25px !important; box-shadow: 0 15px 35px rgba(0, 71, 192, 0.15) !important;
     color: #333 !important;
 }
-
-#update-message { font-weight: 700 !important; color: #0047c0 !important; letter-spacing: 0.5px; }
-
-/* La barra de progreso interna */
+#update-message { font-weight: 700 !important; color: #0047c0 !important; }
 #update-bar {
-    background: linear-gradient(90deg, #0047c0, #00C6FF) !important; /* Degradado líquido */
-    border-radius: 10px !important;
-    box-shadow: 0 0 10px rgba(0, 198, 255, 0.5); /* Resplandor */
-    height: 100% !important;
-    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: linear-gradient(90deg, #0047c0, #00C6FF) !important; border-radius: 10px !important;
+    box-shadow: 0 0 10px rgba(0, 198, 255, 0.5); height: 100% !important; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-
-/* MODALES (Galería, etc.) */
 .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 41, 107, 0.4); /* Azul muy transparente */
-    backdrop-filter: blur(8px); /* Blur fuerte al fondo */
-    z-index: 20000; display: none; justify-content: center; align-items: center;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 41, 107, 0.4); 
+    backdrop-filter: blur(8px); z-index: 20000; display: none; justify-content: center; align-items: center;
 }
 .modal-overlay.show { display: flex; animation: fadeInGlass 0.3s forwards; }
-
 .modal-content {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(25px);
-    width: 90%; max-width: 400px; border-radius: 24px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.6);
-    overflow: hidden;
-    animation: zoomInGlass 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(25px); width: 90%; max-width: 400px; 
+    border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6);
+    overflow: hidden; animation: zoomInGlass 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
 .modal-header {
-    background: rgba(0, 71, 192, 0.1); /* Azul muy suave */
-    color: #0047c0; padding: 20px; font-weight: 800; font-size: 1.1em;
-    display: flex; gap: 10px; align-items: center;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: rgba(0, 71, 192, 0.1); color: #0047c0; padding: 20px; font-weight: 800; font-size: 1.1em;
+    display: flex; gap: 10px; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05);
 }
-
 .modal-body { padding: 30px 20px; font-size: 1.1em; color: #333; text-align: center; }
 .modal-footer { padding: 20px; background: transparent; display: flex; justify-content: center; gap: 15px; }
-
 .btn-modal { padding: 12px 25px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
 .btn-confirm { background: linear-gradient(135deg, #0047c0, #0066ff); color: white; box-shadow: 0 5px 15px rgba(0, 71, 192, 0.3); }
 .btn-cancel { background: #f0f0f0; color: #555; }
 .btn-confirm:hover { transform: scale(1.05); }
 
-/* SPINNER */
 .loader-spinner {
-    width: 20px; height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%; border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-    display: inline-block; vertical-align: middle; margin-right: 10px;
+    width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite; display: inline-block; vertical-align: middle; margin-right: 10px;
 }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeInGlass { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(8px); } }
 @keyframes zoomInGlass { from { opacity: 0; transform: scale(0.8) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
 .btn-auth:disabled { background-color: #ccc; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* ===========================================================
+   7. BUSCADOR Y RESULTADOS (FIX VISUAL FINAL)
+   =========================================================== */
+
+/* Esto es lo que me pediste */
+.search-container {
+    position: relative;
+}
+
+/* El desplegable flotante */
+.search-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    display: none;
+}
+
+.search-results-dropdown.active {
+    display: block;
+}
+
+/* La fila de cada producto */
+.search-item {
+    display: flex;              /* FLEXBOX ES CLAVE PARA ALINEAR */
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    background: white;
+    transition: background 0.2s;
+}
+
+.search-item:hover {
+    background-color: #f0f8ff;
+}
+
+/* === AQUÍ ESTÁ EL ARREGLO DE LA IMAGEN GIGANTE === */
+.search-thumb {
+    width: 50px !important;     /* FUERZA EL TAMAÑO */
+    height: 50px !important;    /* FUERZA EL TAMAÑO */
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 15px;
+    border: 1px solid #eee;
+    flex-shrink: 0;             /* EVITA QUE SE APLASTE */
+}
+/* ================================================= */
+
+.search-info { flex: 1; }
+.search-info h4 { margin: 0; font-size: 15px; font-weight: 700; color: #333; }
+.search-info p { margin: 2px 0 0 0; font-size: 12px; color: #666; }
+.search-price { font-weight: bold; color: var(--color-principal-azul); }
+.no-results { padding: 15px; text-align: center; color: #999; }

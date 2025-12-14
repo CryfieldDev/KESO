@@ -6,100 +6,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
     <style>
-        .pos-grid {
-            display: grid;
-            grid-template-columns: 1fr 420px;
-            gap: 25px;
-            height: calc(100vh - 100px);
+        /* === ESTILOS BASE === */
+        .pos-grid { display: grid; grid-template-columns: 1fr 420px; gap: 25px; height: calc(100vh - 100px); }
+        .invoice-paper { background: white; border: 1px solid #ddd; padding: 25px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-radius: 8px; height: 100%; }
+        .invoice-items { flex-grow: 1; overflow-y: auto; border-top: 2px dashed #eee; border-bottom: 2px dashed #eee; margin: 15px 0; padding: 10px 5px; }
+        .invoice-total { background: var(--color-principal-azul, #0047c0); color: white; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.6em; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .item-row { display: flex; align-items: center; gap: 10px; font-size: 0.95em; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+        .cart-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; }
+
+        /* TARJETA DE PREVISUALIZACIÓN */
+        .product-preview-card { 
+            background: #f4f6f8; padding: 20px; border-radius: 12px; display: none; 
+            border: 1px solid #e0e0e0; animation: fadeIn 0.3s ease; position: relative;
         }
+        .preview-content { display: flex; gap: 20px; align-items: center; }
+        #info-img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: white; }
         
-        .invoice-paper {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border-radius: 8px;
-            height: 100%;
+        /* BOTÓN DE CERRAR SELECCIÓN */
+        .close-selection {
+            position: absolute; top: 10px; right: 10px;
+            background: transparent; border: none;
+            color: #aaa; font-size: 1.2rem; cursor: pointer;
+            padding: 5px; transition: all 0.2s ease; z-index: 10;
         }
+        .close-selection:hover { color: #ef5350; transform: scale(1.1); }
 
-        .invoice-items {
-            flex-grow: 1;
-            overflow-y: auto;
-            border-top: 2px dashed #eee;
-            border-bottom: 2px dashed #eee;
-            margin: 15px 0;
-            padding: 10px 5px;
-        }
+        .logo-round { border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: white; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .invoice-total {
-            background: var(--color-principal-azul);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 1.6em;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .item-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.95em;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            background: #fff;
-        }
-
-        .cart-thumb {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid #eee;
-        }
-
-        .product-preview-card {
-            background: #f4f6f8; 
-            padding: 20px; 
-            border-radius: 12px; 
-            display: none;
-            border: 1px solid #e0e0e0;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .preview-content {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        #info-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 2px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            background: white;
-        }
-
-        .logo-round {
-            border-radius: 50%;
-            object-fit: cover;
-            aspect-ratio: 1 / 1;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            background: white;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* BUSCADOR */
+        .search-container { position: relative; }
+        .search-results-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 350px; overflow-y: auto; z-index: 9999; display: none; }
+        .search-results-dropdown.active { display: block; }
+        .search-item { display: flex !important; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5; background: white; transition: background 0.2s; }
+        .search-item:hover { background-color: #e3f2fd; }
+        .search-thumb { width: 50px !important; height: 50px !important; object-fit: cover; border-radius: 6px; margin-right: 15px; border: 1px solid #eee; flex-shrink: 0; display: block; }
+        .search-info { flex: 1; }
+        .search-info h4 { margin: 0; font-size: 1rem; color: #333; font-weight: 600; }
+        .search-info p { margin: 3px 0 0 0; font-size: 0.85rem; color: #666; }
+        .search-price { font-weight: bold; color: var(--color-principal-azul, #0047c0); font-size: 1.1em; background: #f0f7ff; padding: 5px 10px; border-radius: 6px; }
     </style>
 </head>
 <body class="dashboard-body">
@@ -108,17 +53,18 @@
         
         <aside class="sidebar">
             <div class="logo-area">
-                <img src="/img/KESO.png" alt="Logo" style="width: 120px;">
-                <h3 style="color: var(--color-acento-amarillo);">PUNTO DE VENTA</h3>
+                <img src="/img/logo1.svg" alt="Logo" style="width: 120px;">
+                <h3 style="color: var(--color-acento-amarillo); margin-top: 10px;">PUNTO DE VENTA</h3>
             </div>
             <nav class="sidebar-menu">
-                
                 <a href="/dashboard/dashboard.html" class="menu-item"><i class="fas fa-home"></i> Inicio</a>
                 <a href="/inventory/inventory.html" class="menu-item"><i class="fas fa-boxes"></i> Inventario</a>
                 <a href="#" class="menu-item active"><i class="fas fa-cash-register"></i> Facturar</a>
-                <a href="/sales/sales.html" class="menu-item">
-                    <i class="fas fa-chart-line"></i> Ventas</a>
-                    <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
+                
+                <a href="/receivables/receivables.html" class="menu-item" style="color: #ffffffcc;"><i class="fas fa-hand-holding-usd"></i> Por Cobrar</a>
+
+                <a href="/sales/sales.html" class="menu-item"><i class="fas fa-chart-line"></i> Ventas</a>
+                <a href="/expenses/expenses.html" class="menu-item"><i class="fas fa-wallet"></i> Gastos</a>
                 <a href="/index.html" class="menu-item" style="margin-top: auto; color: #ff8a80;"><i class="fas fa-sign-out-alt"></i> Salir</a>
             </nav>
         </aside>
@@ -139,6 +85,10 @@
                     </div>
 
                     <div id="selected-product-info" class="product-preview-card">
+                        <button id="btn-close-selection" class="close-selection" title="Quitar selección">
+                            <i class="fas fa-times"></i>
+                        </button>
+
                         <div class="preview-content">
                             <img id="info-img" src="" alt="Producto">
                             <div style="flex: 1;">
@@ -149,7 +99,7 @@
                                     <div style="background: white; padding: 5px 10px; border-radius: 6px; border: 1px solid #ddd;">
                                         Stock: <b id="info-stock">0</b> <span id="info-unidad-txt"></span>
                                     </div>
-                                    <div style="background: #E8F5E9; color: #2E7D32; padding: 5px 10px; border-radius: 6px; border: 1px solid #C8E6C9;">
+                                    <div style="background: #E8F5E9; color: #FFD54F; padding: 5px 10px; border-radius: 6px; border: 1px solid #C8E6C9;">
                                         Precio: <b id="info-precio">$0.00</b>
                                     </div>
                                 </div>
@@ -168,6 +118,7 @@
                             </button>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="invoice-paper">
@@ -179,9 +130,19 @@
                             <i class="fas fa-user"></i> <span id="invoice-seller">...</span>
                         </div>
                     </div>
+                    
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <select id="sale-condition" style="padding: 10px; background: #fff8e1; border: 1px solid #FFC107; border-radius: 6px; width: 100%; font-weight: bold; color: #555;">
+                            <option value="contado">✅ Pago de Contado</option>
+                            <option value="credito">⏳ Por Cobrar (Crédito)</option>
+                        </select>
+                    </div>
 
                     <div class="input-group">
                         <input type="text" id="client-name" placeholder="Nombre del Cliente (Opcional)" style="padding: 10px; background: #f9f9f9;">
+                        
+                        <input type="tel" id="client-phone" placeholder="📱 WhatsApp (Ej: 584141234567)" 
+                               style="display:none; margin-top: 8px; padding: 10px; background: #E8F5E9; border: 1px solid #4CAF50; border-radius: 4px; width: 100%;">
                     </div>
 
                     <div class="invoice-items" id="cart-items">
@@ -200,7 +161,7 @@
                             <span>TOTAL: </span>
                             <span id="cart-total">$0.00</span>
                         </div>
-                        <button id="btn-checkout" class="btn btn-principal" style="background: #2E7D32; margin-top: 15px; width: 100%;">
+                        <button id="btn-checkout" class="btn btn-principal" style="background: #FFC107; color: #0047c0; margin-top: 15px; width: 100%;">
                             <i class="fas fa-check"></i> PROCESAR VENTA
                         </button>
                     </div>

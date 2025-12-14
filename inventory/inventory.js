@@ -37,7 +37,7 @@ async function loadProducts() {
             if (prod.categoria === 'Charcutería') badge = 'cat-charcuteria';
             if (prod.categoria === 'Lácteos') badge = 'cat-lacteos';
 
-            const img = prod.imagen ? prod.imagen : '/img/KESO.png';
+            const img = prod.imagen ? prod.imagen : '/img/logo1.svg';
             const qty = prod.unidad === 'kg' ? pCantidad.toFixed(3) : Math.floor(pCantidad);
             const unit = prod.unidad === 'kg' ? 'Kg' : 'Und';
 

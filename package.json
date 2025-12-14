@@ -1,6 +1,6 @@
 {
   "name": "keso-system",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "Sistema de Gestión ERP KESO",
   "main": "main.js",
   "author": "CryfieldDev",
